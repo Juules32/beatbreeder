@@ -1,4 +1,4 @@
-# Beatbreeder
+# Beatbreeder 🥁
 
 ## Architecture
 - Tone.js with CDN instead of NPM, so that building the frontend is not necessary
