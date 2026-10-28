@@ -1,0 +1,55 @@
+body {
+    font-family: sans-serif;
+    margin: 16px;
+    background-color: #eee;
+}
+
+#legend {
+    display: flex;
+    gap: 12px;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 4px;
+}
+
+#grid {
+    display: flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    margin-top: 12px;
+    max-width: 1600px;
+}
+
+.solution {
+    background-color: grey;
+    width: 300px;
+    padding: 4px;
+    border: 2px solid grey;
+    cursor: pointer;
+}
+
+.solution:hover {
+    border-color: #aaa;
+}
+
+.solution.playing {
+    border-color: black;
+}
+
+.solution.selected {
+    box-shadow: 0 0 0 3px #fa0;
+}
+
+#selected-count {
+    margin-right: 12px;
+}
+
+.solution canvas {
+    display: block;
+    width: 100%;
+    image-rendering: pixelated;
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Beatbreeder</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+        <link rel="stylesheet" href="static/style.css">
+    </head>
+    <body>
+        <p>Left click to start/pause tracks. Right click to select as parent.</p>
+        <button id="evolve" disabled>Evolve</button>
+        <span id="selected-count"></span>
+        <div id="legend"></div>
+        <div id="grid"></div>
+
+        <template id="solution-template">
+            <div class="solution"><canvas width="320" height="100"></canvas></div>
+        </template>
+
+        <script src="static/main.js"></script>
+    </body>
+</html>

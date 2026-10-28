@@ -1,0 +1,7 @@
+{
+  "name": "beatbreeder",
+  "private": true,
+  "devDependencies": {
+    "tone": "14.8.49"
+  }
+}
