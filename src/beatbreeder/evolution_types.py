@@ -6,8 +6,31 @@ POPULATION_SIZE = 15
 from abc import ABC, abstractmethod
 from typing import override
 
+Step = bool
+
+Track = list[Step]
+
+Groove = list[Track]
+
+
+
+
+
+
+
+
+
+
+### TODO: remove once obsolete 
+
+
+
 # NOTE: Changes to our phenotype must be reflected in the frontend
 Phenotype = list[list[bool]]
+
+
+
+
 
 class Genotype(ABC):
     @abstractmethod
