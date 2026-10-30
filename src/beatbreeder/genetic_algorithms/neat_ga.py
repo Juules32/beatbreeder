@@ -21,14 +21,14 @@ class NEAT(GA):
 
     @override
     def evolve(self, parents: list[int]) -> None:
-        population = neat.Population(self.config)
+        # population = neat.Population(self.config)
 
         # TODO
         raise NotImplementedError
 
     @override
     def grooves(self) -> list[tuple[int, Groove]]:
-        population: Population = self.population
+        # population: Population = self.population
 
         # TODO
         raise NotImplementedError

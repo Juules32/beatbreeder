@@ -23,7 +23,7 @@ const drumSounds = [
     kick,
 ];
 
-/** @typedef {{ id: string, phenotype: boolean[][] }} Solution */
+/** @typedef {{ id: number, groove: boolean[][] }} Solution */
 /** @typedef {{ solution: Solution, element: HTMLElement, canvas: HTMLCanvasElement }} Tile */
 
 // The tile being played
@@ -31,8 +31,12 @@ const drumSounds = [
 let playing = null;
 
 // Ids of selected parents
-/** @type {Set<string>} */
+/** @type {Set<number>} */
 const selected = new Set();
+
+// Id of the current generation, assigned by the server
+/** @type {string | null} */
+let gid = null;
 
 // Legend
 NAMES.forEach((name, i) => {
@@ -48,7 +52,7 @@ Tone.Transport.bpm.value = 120;
 Tone.Transport.loop = true;
 Tone.Transport.loopEnd = '1m'; // One measure. Removing this line will make your ears bleed!
 new Tone.Sequence(
-    (time, step) => playing?.solution.phenotype.forEach((row, i) => {
+    (time, step) => playing?.solution.groove.forEach((row, i) => {
         if (row[step]) {
             drumSounds[i].start(time);
         }
@@ -59,19 +63,22 @@ new Tone.Sequence(
 
 /**
  * @param {string} algorithm
- * @param {string[]} parents
+ * @param {number[]} pids
  * @returns {Promise<Solution[]>}
  */
-async function generate(algorithm, parents) {
+async function generate(algorithm, pids) {
     const response = await fetch("/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ algorithm, parents }),
+        body: JSON.stringify({ algorithm, gid, pids }),
     });
     if (!response.ok) {
         throw new Error(`Generating failed: ${JSON.stringify(await response.json())}`);
     }
-    return (await response.json()).solutions;
+    /** @type {{ gid: string, grooves: [number, boolean[][]][] }} */
+    const data = await response.json();
+    gid = data.gid;
+    return data.grooves.map(([id, groove]) => ({ id, groove }));
 }
 
 function stop() {
@@ -120,7 +127,7 @@ function draw({ solution, canvas }, playhead) {
     const h = canvas.height / NAMES.length;
     const p = 1; // Padding
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    solution.phenotype.forEach((row, y) => {
+    solution.groove.forEach((row, y) => {
         row.forEach((on, x) => {
             ctx.fillStyle = on ? COLORS[y] : "#000000";
             ctx.fillRect(x * w + p, y * h + p, w - p * 2, h - p * 2);
@@ -143,7 +150,7 @@ function render(solutions) {
     grid.replaceChildren(...solutions.map(solution => {
         const element = /** @type {HTMLElement} */ (solutionTemplate.content.firstElementChild.cloneNode(true)); // Solution div
         const tile = { solution, element, canvas: element.querySelector("canvas") };
-        element.dataset.id = solution.id;
+        element.dataset.id = solution.id.toString();
         element.onclick = () => {
             if (playing == tile) {
                 stop();
