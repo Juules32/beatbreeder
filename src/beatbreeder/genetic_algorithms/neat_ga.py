@@ -8,7 +8,7 @@ from ..evolution_types import Groove
 from .genetic_algorithm import GA
 
 
-class NEAT(GA[Population]):
+class NEAT(GA):
     def __init__(self, config_path: str = 'cppn-config'):
         self.config: Config = neat.Config(
             neat.DefaultGenome,
@@ -17,21 +17,18 @@ class NEAT(GA[Population]):
             neat.DefaultStagnation,
             config_path
         )
+        self.population: Population = neat.Population(self.config)
 
     @override
-    def init_generation(self) -> Population:
+    def evolve(self, parents: list[int]) -> None:
         population = neat.Population(self.config)
-        return population
-
-    @override
-    def evolve(self, generation: Population, parents: list[int]) -> Population:
-        population: Population = generation
 
         # TODO
-
-        return population
+        raise NotImplementedError
 
     @override
-    def make_grooves(self, generation: Population) -> list[tuple[int, Groove]]:
+    def grooves(self) -> list[tuple[int, Groove]]:
+        population: Population = self.population
+
         # TODO
-        ...
+        raise NotImplementedError

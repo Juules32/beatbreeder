@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from pydantic import ValidationError
 
-from .generate import generate_grooves
+from .generate import create_ga
 from .models import GenerateRequest, GenerateResponse
 from .store import store
 
@@ -18,9 +18,17 @@ def generate():
     except ValidationError as e:
         return {"error": str(e)}, 400
 
-    generation = store.get(request_json.gid) if request_json.gid else None
-    grooves = generate_grooves(request_json.algorithm, generation, request_json.pids)
-    return GenerateResponse(grooves=grooves).model_dump()
+    if request_json.gid is None:
+        ga = create_ga(request_json.algorithm)
+        gid = store.add(ga)
+    else:
+        gid = request_json.gid
+        ga = store.get(gid)
+        if ga is None:
+            return {"error": f"Unknown or expired generation id: {gid}"}, 404
+        ga.evolve(request_json.pids)
+
+    return GenerateResponse(gid=gid, grooves=ga.grooves()).model_dump()
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,18 +1,14 @@
-import random
+from .evolution_types import Algorithm
+from .genetic_algorithms.genetic_algorithm import GA
+from .genetic_algorithms.neat_ga import NEAT
+from .genetic_algorithms.random import RandomGA
 
-from beatbreeder.genetic_algorithms.random import RandomGA
 
-from .evolution_types import POPULATION_SIZE, Algorithm, BitmapGenotype, Generation, Genotype, Groove
-from .store import store
-
-TRACKS = 5
-STEPS = 16
-
-def generate_grooves(algorithm: Algorithm, generation: Generation | None, pids: list[int] | None) -> list[tuple[int, Groove]]:
+def create_ga(algorithm: Algorithm) -> GA:
     match algorithm:
         case Algorithm.RANDOM:
-            if generation and pids:
-                new_generation = RandomGA().evolve(generation, pids)
-        case _:
-            raise Exception("Illegal algorithm type!")
-            
+            return RandomGA()
+        case Algorithm.SIMPLE:
+            raise NotImplementedError # TODO
+        case Algorithm.NEAT:
+            return NEAT()
