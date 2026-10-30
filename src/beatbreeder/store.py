@@ -12,13 +12,14 @@ class SolutionStore:
         self._lock: threading.Lock = threading.Lock() # Lock needed because flask is multithreaded
 
     def add(self, genotype: Generation) -> str:
-        id = uuid.uuid4().hex
+        gid = uuid.uuid4().hex
         with self._lock:
-            self._cache[id] = genotype
-        return id
+            self._cache[gid] = genotype
+        return gid
 
-    def get(self, id: str) -> Generation:
+    def get(self, gid: str) -> Generation | None:
         with self._lock:
-            return self._cache[id]
+            return self._cache.get(gid)
 
+# Singleton pattern in python
 store = SolutionStore()

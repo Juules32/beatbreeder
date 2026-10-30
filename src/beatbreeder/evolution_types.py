@@ -14,7 +14,7 @@ Track = list[Step]
 
 Groove = list[Track]
 
-Generation = Population | Groove
+Generation = Population | list[Groove]
 
 
 
