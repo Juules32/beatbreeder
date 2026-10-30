@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+from neat.population import Population
+
 MAX_PARENTS = 5
 POPULATION_SIZE = 15
 
@@ -12,6 +14,7 @@ Track = list[Step]
 
 Groove = list[Track]
 
+Generation = Population | Groove
 
 
 
@@ -20,8 +23,7 @@ Groove = list[Track]
 
 
 
-
-### TODO: remove once obsolete 
+### TODO: remove once obsolete
 
 
 

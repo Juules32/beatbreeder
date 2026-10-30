@@ -3,21 +3,21 @@ import uuid
 
 from cachetools import TTLCache
 
-from .evolution_types import Genotype
+from .evolution_types import Generation
 
 
 class SolutionStore:
     def __init__(self, maxsize: int = 10000, ttl: float = 3600):
-        self._cache: TTLCache[str, Genotype] = TTLCache[str, Genotype](maxsize=maxsize, ttl=ttl)
+        self._cache: TTLCache[str, Generation] = TTLCache[str, Generation](maxsize=maxsize, ttl=ttl)
         self._lock: threading.Lock = threading.Lock() # Lock needed because flask is multithreaded
 
-    def add(self, genotype: Genotype) -> str:
+    def add(self, genotype: Generation) -> str:
         id = uuid.uuid4().hex
         with self._lock:
             self._cache[id] = genotype
         return id
 
-    def get(self, id: str) -> Genotype:
+    def get(self, id: str) -> Generation:
         with self._lock:
             return self._cache[id]
 
