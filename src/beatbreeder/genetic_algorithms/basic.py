@@ -1,11 +1,9 @@
+import random
 from typing_extensions import override
 
-from ..generations.generation import Generation
-from ..generations.basic import BasicGeneration
 from ..evolution_types import Groove, Track
 from .genetic_algorithm import GA
 
-import random
 
 
 ### Settings
@@ -24,9 +22,9 @@ CROSSOVER_TYPE = "TRACK"  # Either "TRACK" or "CELL"
 ### No more settings
 
 
-class BasicGA(GA):
+class BasicGA(GA[list[Groove]]):
     @override
-    def init_generation(self) -> Generation:
+    def init_generation() -> list[Groove]:
         population: list[Groove] = []
         for _ in range(STEPS_PER_GROOVE):
             individual: Groove = []
@@ -41,12 +39,12 @@ class BasicGA(GA):
 
             population.append(individual)
 
-        new_generation = BasicGeneration(population)
-        return new_generation
+        return population
+
 
     @override
-    def evolve(self, generation: Generation, parents: list[int]) -> Generation:
-        population: list[Groove] = generation.get_population()
+    def evolve(self, generation: list[Groove], parents: list[int]) -> list[Groove]:
+        population: list[Groove] = generation
 
         can_crossover: bool = len(parents) > 1
 
@@ -61,12 +59,27 @@ class BasicGA(GA):
                 new_individual: Groove = crossover(population[idx1], population[idx2], CROSSOVER_TYPE, CROSSOVER_BALANCE)
             else:
                 idx = random.choice(parents)
-                new_individual: Groove = mutate(population[idx], MUTATION_RATE)
+                new_individual = mutate(population[idx], MUTATION_RATE)
 
             new_population.append(new_individual)
 
-        new_generation = BasicGeneration(new_population)
-        return new_generation
+        return new_population
+
+
+    @override
+    def make_grooves(self, generation: list[Groove]) -> list[tuple[int, Groove]]:
+        population: list[Groove] = generation
+        formatted_output: list[tuple[int, Groove]] = []
+
+        for i in range(len(population)):
+            entry: tuple[int, Groove] = (i, population[i])
+            formatted_output.append(entry)
+
+        return formatted_output
+
+
+
+
 
 
 
