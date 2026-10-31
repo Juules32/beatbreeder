@@ -24,6 +24,12 @@ class NEAT(GA):
         for parent in parents:
             self.population.population[parent].fitness = 1
 
+        for id in self.population.population:
+            if id in parents:
+                self.population.population[id].fitness = 1
+            else:
+                self.population.population[id].fitness = 0
+
         self.population.population = self.population.reproduction.reproduce(
             self.config,
             self.population.species,
