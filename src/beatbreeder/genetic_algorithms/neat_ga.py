@@ -4,7 +4,7 @@ import neat
 from neat.config import Config
 from neat.population import Population
 
-from ..evolution_types import Groove
+from ..evolution_types import POPULATION_SIZE, STEPS, TRACKS, Groove, Track
 from .genetic_algorithm import GA
 
 
@@ -21,14 +21,36 @@ class NEAT(GA):
 
     @override
     def evolve(self, parents: list[int]) -> None:
-        # population = neat.Population(self.config)
+        for parent in parents:
+            self.population.population[parent].fitness = 1
 
-        # TODO
-        raise NotImplementedError
+        self.population.population = self.population.reproduction.reproduce(
+            self.config,
+            self.population.species,
+            POPULATION_SIZE,
+            self.population.generation
+        )
+
+        self.population.species.speciate(
+            self.config,
+            self.population.population,
+            self.population.generation
+        )
+
+        self.population.generation += 1
 
     @override
     def grooves(self) -> list[tuple[int, Groove]]:
-        # population: Population = self.population
+        population: list[tuple[int, Groove]] = []
+        for id, genome in self.population.population.items():
+            network = neat.nn.FeedForwardNetwork.create(genome=genome, config=self.config)
 
-        # TODO
-        raise NotImplementedError
+            groove: Groove = []
+            for instrument in range(TRACKS):
+                track: Track = []
+                for step in range(STEPS):
+                    value: float = network.activate((instrument, step))[0]
+                    track.append(value > 0.0)
+                groove.append(track)
+            population.append((id, groove))
+        return population
