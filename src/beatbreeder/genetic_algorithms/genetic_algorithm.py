@@ -1,19 +1,18 @@
 from abc import ABC, abstractmethod
 
-from ..evolution_types import Groove
-from ..generations.generation import Generation
+from ..evolution_types import Generation, Groove
 
 
 # Genetic Algorithm abstract class
-class GA(ABC): 
+class GA[T: Generation](ABC):
     @abstractmethod
-    def init_generation() -> Generation:
+    def init_generation() -> T:
         ...
 
     @abstractmethod
-    def evolve(self, generation: Generation, parents: list[int]) -> Generation:
+    def evolve(self, generation: T, parents: list[int]) -> T:
         ...
 
     @abstractmethod
-    def make_grooves(self, generation: Generation) -> list[tuple[int, Groove]]:
+    def make_grooves(self, generation: T) -> list[tuple[int, Groove]]:
         ...
