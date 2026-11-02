@@ -8,30 +8,30 @@ class DefaultGenomeConfig:
     allowed_connectivity = ...
     def __init__(self, params, section_name=...) -> None:
         ...
-    
+
     def add_activation(self, name, func) -> None:
         ...
-    
+
     def add_aggregation(self, name, func) -> None:
         ...
-    
+
     def save(self, f) -> None:
         ...
-    
+
     def get_new_node_key(self, node_dict):
         ...
-    
+
     def check_structural_mutation_surer(self) -> bool:
         ...
-    
+
     def __getstate__(self) -> dict[str, Any]:
         """Prepare config for pickling by converting node_indexer to a picklable form."""
         ...
-    
+
     def __setstate__(self, state) -> None:
         """Restore config from pickled state, recreating node_indexer."""
         ...
-    
+
 
 
 class DefaultGenome:
@@ -55,25 +55,27 @@ class DefaultGenome:
         3. Output neurons can be modified but not deleted.
         4. The input values are applied to the input pins unmodified.
     """
+    fitness: float
+
     @classmethod
     def parse_config(cls, param_dict) -> DefaultGenomeConfig:
         ...
-    
+
     @classmethod
     def write_config(cls, f, config) -> None:
         ...
-    
+
     def __init__(self, key) -> None:
         ...
-    
+
     def configure_new(self, config) -> None:
         """Configure a new genome based on the given configuration."""
         ...
-    
+
     def configure_crossover(self, genome1, genome2, config) -> None:
         """
         Configure a new genome by crossover from two parent genomes.
-        
+
         Implements NEAT paper (Stanley & Miikkulainen, 2002, p. 108) crossover:
         "When crossing over, the genes in both genomes with the same innovation
         numbers are lined up. Genes are randomly chosen from either parent at
@@ -81,68 +83,68 @@ class DefaultGenome:
         from the more fit parent."
         """
         ...
-    
+
     def mutate(self, config) -> None:
         """ Mutates this genome. """
         ...
-    
+
     def mutate_add_node(self, config) -> None:
         """
         Add a new node by splitting an existing connection.
-        
+
         Uses innovation tracking per NEAT paper (Stanley & Miikkulainen, 2002):
         If multiple genomes split the same connection in one generation, the resulting
         connections receive matching innovation numbers.
         """
         ...
-    
+
     def add_connection(self, config, input_key, output_key, weight, enabled, innovation=...) -> None:
         """Add a connection to this genome. If innovation is None, gets a new one from tracker."""
         ...
-    
+
     def mutate_add_connection(self, config) -> None:
         """
         Attempt to add a new connection, the only restriction being that the output
         node cannot be one of the network input pins.
-        
+
         Uses innovation tracking per NEAT paper (Stanley & Miikkulainen, 2002):
         If multiple genomes in the same generation add the same connection,
         they receive the same innovation number.
         """
         ...
-    
+
     def mutate_delete_node(self, config) -> Literal[-1]:
         ...
-    
+
     def mutate_delete_connection(self) -> None:
         ...
-    
+
     def distance(self, other, config) -> float:
         """
         Returns the genetic distance between this genome and the other. This distance value
         is used to compute genome compatibility for speciation.
         """
         ...
-    
+
     def size(self) -> tuple[int, int]:
         """
         Returns genome 'complexity', taken to be
         (number of nodes, number of enabled connections)
         """
         ...
-    
+
     def __str__(self) -> str:
         ...
-    
+
     @staticmethod
     def create_node(config, node_id):
         ...
-    
+
     @staticmethod
     def create_connection(config, input_id, output_id, innovation):
         """Create a new connection gene with the given innovation number."""
         ...
-    
+
     def connect_fs_neat_nohidden(self, config) -> None:
         """
         Randomly connect one input to all output nodes
@@ -150,14 +152,14 @@ class DefaultGenome:
         Originally connect_fs_neat.
         """
         ...
-    
+
     def connect_fs_neat_hidden(self, config) -> None:
         """
         Randomly connect one input to all hidden and output nodes
         (FS-NEAT with connections to hidden, if any).
         """
         ...
-    
+
     def compute_full_connections(self, config, direct) -> list[Any]:
         """
         Compute connections for a fully-connected feed-forward genome--each
@@ -167,37 +169,36 @@ class DefaultGenome:
         (Recurrent genomes will also include node self-connections.)
         """
         ...
-    
+
     def connect_full_nodirect(self, config) -> None:
         """
         Create a fully-connected genome
         (except without direct input-output unless no hidden nodes).
         """
         ...
-    
+
     def connect_full_direct(self, config) -> None:
         """ Create a fully-connected genome, including direct input-output connections. """
         ...
-    
+
     def connect_partial_nodirect(self, config) -> None:
         """
         Create a partially-connected genome,
         with (unless no hidden nodes) no direct input-output connections.
         """
         ...
-    
+
     def connect_partial_direct(self, config) -> None:
         """
         Create a partially-connected genome,
         including (possibly) direct input-output connections.
         """
         ...
-    
+
     def get_pruned_copy(self, genome_config) -> DefaultGenome:
         ...
-    
+
 
 
 def get_pruned_genes(node_genes, connection_genes, input_keys, output_keys) -> tuple[dict[Any, Any], dict[Any, Any]]:
     ...
-
