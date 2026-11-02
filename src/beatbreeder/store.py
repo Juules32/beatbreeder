@@ -19,7 +19,10 @@ class GAStore:
 
     def get(self, gid: str) -> GA | None:
         with self._lock:
-            return self._cache.get(gid)
+            ga = self._cache.get(gid)
+            if ga is not None:
+                self._cache[gid] = ga  # Refresh TTL so active sessions don't expire
+            return ga
 
 # Singleton pattern in python
 store = GAStore()

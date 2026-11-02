@@ -14,7 +14,7 @@ feed_forward            = True
 initial_connection      = full_direct
 
 # Activation function
-activation_default      = sin # or tanh
+activation_default      = sin
 activation_mutate_rate  = 0.0
 activation_options      = tanh sin gauss abs identity
 
