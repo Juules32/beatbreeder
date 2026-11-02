@@ -11,5 +11,5 @@ Groove = list[Track]
 
 class Algorithm(StrEnum):
     RANDOM = "random"
-    SIMPLE = "simple"
+    BASIC = "basic"
     NEAT = "neat"

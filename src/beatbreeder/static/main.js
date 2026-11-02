@@ -168,11 +168,11 @@ function render(solutions) {
 }
 
 async function evolve() {
-    render(await generate("random", [...selected]));
+    render(await generate("neat", [...selected]));
 }
 
 evolveButton.onclick = evolve;
-generate("random", []).then(render);
+generate("neat", []).then(render);
 
 (function animate() {
     if (playing) {

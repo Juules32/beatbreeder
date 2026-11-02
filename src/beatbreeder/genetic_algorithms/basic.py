@@ -1,13 +1,11 @@
 import random
-from typing_extensions import override
+from typing import override
 
 from ..evolution_types import Groove, Track
 from .genetic_algorithm import GA
 
-
-
 ### Settings
-POPULATION_SIZE = 5
+POPULATION_SIZE = 15
 TRACK_COUNT = 5
 STEPS_PER_GROOVE = 16
 
@@ -22,11 +20,10 @@ CROSSOVER_TYPE = "TRACK"  # Either "TRACK" or "CELL"
 ### No more settings
 
 
-class BasicGA(GA[list[Groove]]):
-    @override
-    def init_generation() -> list[Groove]:
-        population: list[Groove] = []
-        for _ in range(STEPS_PER_GROOVE):
+class BasicGA(GA):
+    def __init__(self):
+        self.population: list[Groove] = []
+        for _ in range(POPULATION_SIZE):
             individual: Groove = []
             for _ in range(TRACK_COUNT):
                 track: Track = []
@@ -37,42 +34,35 @@ class BasicGA(GA[list[Groove]]):
                         track.append(False)
                 individual.append(track)
 
-            population.append(individual)
-
-        return population
-
+            self.population.append(individual)
 
     @override
-    def evolve(self, generation: list[Groove], parents: list[int]) -> list[Groove]:
-        population: list[Groove] = generation
-
+    def evolve(self, parents: list[int]) -> None:
         can_crossover: bool = len(parents) > 1
 
         new_population: list[Groove] = []
-        for _ in range(len(population)):
+        for _ in range(len(self.population)):
             if can_crossover and random.random() < CHANCE_TO_CROSSOVER:
                 idx1, idx2 = 0, 0
                 while idx1 == idx2:
                     idx1 = random.choice(parents)
                     idx2 = random.choice(parents)
 
-                new_individual: Groove = crossover(population[idx1], population[idx2], CROSSOVER_TYPE, CROSSOVER_BALANCE)
+                new_individual: Groove = crossover(self.population[idx1], self.population[idx2], CROSSOVER_TYPE, CROSSOVER_BALANCE)
             else:
                 idx = random.choice(parents)
-                new_individual = mutate(population[idx], MUTATION_RATE)
+                new_individual = mutate(self.population[idx], MUTATION_RATE)
 
             new_population.append(new_individual)
 
-        return new_population
-
+        self.population = new_population
 
     @override
-    def make_grooves(self, generation: list[Groove]) -> list[tuple[int, Groove]]:
-        population: list[Groove] = generation
+    def grooves(self) -> list[tuple[int, Groove]]:
         formatted_output: list[tuple[int, Groove]] = []
 
-        for i in range(len(population)):
-            entry: tuple[int, Groove] = (i, population[i])
+        for i in range(len(self.population)):
+            entry: tuple[int, Groove] = (i, self.population[i])
             formatted_output.append(entry)
 
         return formatted_output
