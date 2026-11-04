@@ -6,7 +6,6 @@ const solutionTemplate = /** @type {HTMLTemplateElement} */ (document.getElement
 
 const NAMES = ["Hi-hat", "Snare", "Mid Tom", "Low Tom", "Kick"];
 const COLORS = ["#00ff00", "#0000ff", "#ffff00", "#00ffff", "#ff0000"];
-const STEPS = 16;
 const MAX_PARENTS = 5;
 
 // Sounds from: https://github.com/Tonejs/audio
@@ -23,12 +22,16 @@ const drumSounds = [
     kick,
 ];
 
-/** @typedef {{ id: number, groove: boolean[][] }} Solution */
+/** @typedef {{ id: number, groove: Groove }} Solution */
 /** @typedef {{ solution: Solution, element: HTMLElement, canvas: HTMLCanvasElement }} Tile */
 
 // The tile being played
 /** @type {Tile | null} */
 let playing = null;
+
+// The current tile's Tone.js part, meaning how it schedules its rhythm (Different for each individual)
+/** @type {import("tone").Part | null} */
+let part = null;
 
 // Ids of selected parents
 /** @type {Set<number>} */
@@ -51,15 +54,30 @@ NAMES.forEach((name, i) => {
 Tone.Transport.bpm.value = 120;
 Tone.Transport.loop = true;
 Tone.Transport.loopEnd = '1m'; // One measure. Removing this line will make your ears bleed!
-new Tone.Sequence(
-    (time, step) => playing?.solution.groove.forEach((row, i) => {
-        if (row[step]) {
-            drumSounds[i].start(time);
+
+/**
+ * Recursively visits each note in Subdivision so you can apply a function (visit)
+ * to each leaf using its start position, length and velocity.
+ * @param {Subdivision} subdivision
+ * @param {number} start
+ * @param {number} length
+ * @param {(start: number, length: number, velocity: number) => void} visit
+ */
+function walk(subdivision, start, length, visit) {
+    if (subdivision.length == 0) {
+        return;
+    }
+    const childLength = length / subdivision.length;
+    subdivision.forEach((child, i) => {
+        const childStart = start + i * childLength;
+        if (Array.isArray(child)) {
+            walk(child, childStart, childLength, visit);
+        } else {
+            const velocity = Math.min(Math.max(Number(child), 0), 1);
+            visit(childStart, childLength, velocity);
         }
-    }),
-    [...Array(STEPS).keys()], // All the steps [0, 1, ..., 15]
-    "16n", // Time between steps
-).start(0);
+    });
+}
 
 /**
  * @param {string} algorithm
@@ -75,7 +93,6 @@ async function generate(algorithm, pids) {
     if (!response.ok) {
         throw new Error(`Generating failed: ${JSON.stringify(await response.json())}`);
     }
-    /** @type {{ gid: string, grooves: [number, boolean[][]][] }} */
     const data = await response.json();
     gid = data.gid;
     return data.grooves.map(([id, groove]) => ({ id, groove }));
@@ -83,6 +100,8 @@ async function generate(algorithm, pids) {
 
 function stop() {
     Tone.Transport.stop(Tone.immediate());
+    part?.dispose(); // Prevents multiple parts to play at once
+    part = null;
     if (playing) {
         playing.element.classList.remove("playing");
         draw(playing, false);
@@ -95,6 +114,20 @@ async function play(tile) {
     stop();
     await Tone.start();
     await Tone.loaded();
+    const measure = Tone.Time("1m").toSeconds();
+    const hits = [];
+    tile.solution.groove.forEach((subdivision, track) => {
+        walk(subdivision, 0, 1, (start, _length, velocity) => {
+            if (velocity > 0) {
+                hits.push([start * measure, { track, velocity }]);
+            }
+        });
+    });
+    part = new Tone.Part((time, { track, velocity }) => {
+        const sound = drumSounds[track];
+        sound.volume.setValueAtTime(Tone.gainToDb(velocity), time);
+        sound.start(time);
+    }, hits).start(0);
     playing = tile;
     tile.element.classList.add("playing");
     Tone.Transport.start();
@@ -123,16 +156,25 @@ function updateSelection() {
  */
 function draw({ solution, canvas }, playhead) {
     const ctx = canvas.getContext("2d");
-    const w = canvas.width / STEPS;
     const h = canvas.height / NAMES.length;
     const p = 1; // Padding
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    solution.groove.forEach((row, y) => {
-        row.forEach((on, x) => {
-            ctx.fillStyle = on ? COLORS[y] : "#000000";
-            ctx.fillRect(x * w + p, y * h + p, w - p * 2, h - p * 2);
+    solution.groove.forEach((subdivision, y) => {
+        walk(subdivision, 0, 1, (start, length, velocity) => {
+            const x = start * canvas.width;
+            const w = length * canvas.width;
+            const rect = ([x + p, y * h + p, w - p * 2, h - p * 2]);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(rect[0], rect[1], rect[2], rect[3]);
+            if (velocity > 0) {
+                ctx.globalAlpha = velocity;
+                ctx.fillStyle = COLORS[y];
+                ctx.fillRect(rect[0], rect[1], rect[2], rect[3]);
+            }
         });
     });
+    ctx.globalAlpha = 1;
     if (playhead) {
         const bar = Tone.Transport.PPQ * 4; // Number of ticks in a bar
         const x = Tone.Transport.getTicksAtTime(Tone.immediate()) / bar * canvas.width;
@@ -168,11 +210,11 @@ function render(solutions) {
 }
 
 async function evolve() {
-    render(await generate("neat", [...selected]));
+    render(await generate("random", [...selected]));
 }
 
 evolveButton.onclick = evolve;
-generate("neat", []).then(render);
+generate("random", []).then(render);
 
 (function animate() {
     if (playing) {

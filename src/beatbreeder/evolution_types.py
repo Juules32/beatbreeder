@@ -5,9 +5,9 @@ POPULATION_SIZE = 15
 TRACKS = 5
 STEPS = 16
 
-Step = bool
-Track = list[Step]
-Groove = list[Track]
+type Subdivision = list[Subdivision] | list[float]
+type Groove = list[Subdivision]
+type FlatGroove = list[list[float]]
 
 class Algorithm(StrEnum):
     RANDOM = "random"
