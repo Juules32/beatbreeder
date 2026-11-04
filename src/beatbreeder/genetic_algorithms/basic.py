@@ -1,8 +1,8 @@
 import random
-from typing import cast, override
+from typing import override
 
 from ..evolution_types import FlatGroove, Groove
-from ..util import get_random_velocity
+from ..util import get_random_velocity, straight_floats_to_nested_groove
 from .genetic_algorithm import GA
 
 ### Settings
@@ -61,7 +61,7 @@ class BasicGA(GA):
         formatted_output: list[tuple[int, Groove]] = []
 
         for i in range(len(self.population)):
-            entry: tuple[int, Groove] = (i, cast(Groove, self.population[i]))
+            entry: tuple[int, Groove] = (i, straight_floats_to_nested_groove(self.population[i]))
             formatted_output.append(entry)
 
         return formatted_output
