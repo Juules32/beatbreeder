@@ -8,7 +8,12 @@
     </head>
     <body>
         <p>Left click to start/pause tracks. Right click to select as parent.</p>
-        <button id="evolve" disabled>Evolve</button>
+        <select id="algorithm-selector">
+          <option value="random">Random</option>
+          <option value="basic">Basic</option>
+          <option value="neat">NEAT</option>
+        </select>
+        <button id="evolve">Evolve</button>
         <span id="selected-count"></span>
         <div id="legend"></div>
         <div id="grid"></div>
