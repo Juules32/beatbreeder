@@ -2,7 +2,8 @@ import random
 from typing import cast, override
 
 from ..evolution_types import FlatGroove, Groove
-from .genetic_algorithm import GA, get_random_velocity
+from ..util import get_random_velocity
+from .genetic_algorithm import GA
 
 ### Settings
 POPULATION_SIZE = 15
@@ -57,7 +58,6 @@ class BasicGA(GA):
 
     @override
     def grooves(self) -> list[tuple[int, Groove]]:
-        # A flat groove is a valid Groove, but lists are invariant so the type checker needs a cast
         formatted_output: list[tuple[int, Groove]] = []
 
         for i in range(len(self.population)):

@@ -2,7 +2,8 @@ import random
 from typing import override
 
 from ..evolution_types import POPULATION_SIZE, TRACKS, Groove, Subdivision
-from .genetic_algorithm import GA, get_random_velocity
+from ..util import get_random_velocity
+from .genetic_algorithm import GA
 
 # NOTE: These constants are here to try to contain the chaotic rhythms possible with the nested list rhythm type
 BEATS = 4 # Initial subdivisions (4/4 time)
