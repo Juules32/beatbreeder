@@ -1,3 +1,4 @@
+const resetButton = /** @type {HTMLButtonElement} */ (document.getElementById('reset'));
 const select = /** @type {HTMLSelectElement} */ (document.getElementById('algorithm-selector'));
 const evolveButton = /** @type {HTMLButtonElement} */ (document.getElementById("evolve"));
 const selectedCount = document.getElementById("selected-count");
@@ -147,8 +148,9 @@ function toggleSelected({ solution, element }) {
 }
 
 function updateSelection() {
-    select.disabled = gid != null; // TODO: Cleaner way to prevent mixing algorithms?
-    evolveButton.disabled = selected.size == 0;
+    resetButton.disabled = gid == null;
+    select.disabled = gid != null;
+    evolveButton.disabled = gid != null && selected.size == 0;
     selectedCount.textContent = `${selected.size}/${MAX_PARENTS} selected`;
 }
 
@@ -211,11 +213,21 @@ function render(solutions) {
     }));
 }
 
+function reset() {
+    stop();
+    selected.clear();
+    gid = null;
+    grid.replaceChildren();
+    updateSelection();
+}
+
 async function evolve() {
     render(await generate(select.value, [...selected]));
 }
 
+resetButton.onclick = reset;
 evolveButton.onclick = evolve;
+updateSelection();
 
 (function animate() {
     if (playing) {
