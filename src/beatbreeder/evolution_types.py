@@ -13,3 +13,4 @@ class Algorithm(StrEnum):
     RANDOM = "random"
     BASIC = "basic"
     NEAT = "neat"
+    NEATNESTED = "neat nested"

@@ -1,8 +1,9 @@
 from .evolution_types import Algorithm
 from .genetic_algorithms.basic import BasicGA
 from .genetic_algorithms.genetic_algorithm import GA
+from .genetic_algorithms.neat_ga import NEAT
+from .genetic_algorithms.neat_nested import NEATNested
 from .genetic_algorithms.random import RandomGA
-# from .genetic_algorithms.neat import NEAT
 
 
 def create_ga(algorithm: Algorithm) -> GA:
@@ -12,4 +13,6 @@ def create_ga(algorithm: Algorithm) -> GA:
         case Algorithm.BASIC:
             return BasicGA()
         case Algorithm.NEAT:
-            raise Exception() # return NEAT()
+            return NEAT()
+        case Algorithm.NEATNESTED:
+            return NEATNested()
