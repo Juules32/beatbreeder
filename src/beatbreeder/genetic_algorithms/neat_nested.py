@@ -8,7 +8,7 @@ from neat.population import Population
 from ..evolution_types import POPULATION_SIZE, TRACKS, Groove, Subdivision
 from .genetic_algorithm import GA
 
-MAX_DEPTH = 3
+MAX_DEPTH = 2
 
 class NEATNested(GA):
     def __init__(self, config_path: str = 'nested-cppn-config'):
@@ -82,4 +82,6 @@ def build_subdivisions(network: NetworkWrapper, max_depth: int = 3, depth: int =
     for _ in range(splits):
         sub: Subdivision = build_subdivisions(network, max_depth, depth + 1)
         subdivision.append(sub)
+    if len(subdivision) == 0:
+        subdivision.append([0])
     return subdivision
