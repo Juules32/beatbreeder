@@ -1,51 +1,20 @@
+from math import floor
 from typing import override
 
 import neat
-from neat.config import Config
 from neat.nn.feed_forward import FeedForwardNetwork
-from neat.population import Population
 
-from ..evolution_types import POPULATION_SIZE, TRACKS, Groove, Subdivision
-from .genetic_algorithm import GA
+from ..evolution_types import TRACKS, Groove, Subdivision
+from .neat_ga import NEAT
 
-MAX_DEPTH = 2
+MAX_DEPTH: int = 1
+INITIAL_RANGE: float = 16.0
+SPLITS: list[int] = [2, 3, 5, 7, 11]
 
-class NEATNested(GA):
-    def __init__(self, config_path: str = 'nested-cppn-config'):
-        self.config: Config = neat.Config(
-            neat.DefaultGenome,
-            neat.DefaultReproduction,
-            neat.DefaultSpeciesSet,
-            neat.DefaultStagnation,
-            config_path
-        )
-        self.population: Population = neat.Population(self.config)
-
+class NEATNested(NEAT):
     @override
-    def evolve(self, parents: list[int]) -> None:
-        for parent in parents:
-            self.population.population[parent].fitness = 1
-
-        for id in self.population.population:
-            if id in parents:
-                self.population.population[id].fitness = 1
-            else:
-                self.population.population[id].fitness = 0
-
-        self.population.population = self.population.reproduction.reproduce(
-            self.config,
-            self.population.species,
-            POPULATION_SIZE,
-            self.population.generation
-        )
-
-        self.population.species.speciate(
-            self.config,
-            self.population.population,
-            self.population.generation
-        )
-
-        self.population.generation += 1
+    def __init__(self, config_path: str = 'nested-cppn-config'):
+        NEAT.__init__(self, config_path)
 
     @override
     def grooves(self) -> list[tuple[int, Groove]]:
@@ -56,7 +25,7 @@ class NEATNested(GA):
             groove: Groove = []
             for instrument in range(TRACKS):
                 net_wrapper = NetworkWrapper(network, instrument)
-                track: Subdivision = build_subdivisions(network=net_wrapper, max_depth=MAX_DEPTH)
+                track: Subdivision = build_subdivisions(network=net_wrapper, max_depth=MAX_DEPTH, step=0.0, step_range=INITIAL_RANGE)
                 groove.append(track)
             population.append((id, groove))
         return population
@@ -65,23 +34,31 @@ class NetworkWrapper:
     def __init__(self, network: FeedForwardNetwork, instrument: int):
         self.network: FeedForwardNetwork = network
         self.instrument: int = instrument
-        self.step: int = 0
 
-    def activate(self) -> list[float]:
-        result: list[float] = self.network.activate((self.instrument, self.step))
-        self.step += 1
+    def activate(self, step: float) -> list[float]:
+        result: list[float] = self.network.activate((self.instrument, step))
         return result
 
-def build_subdivisions(network: NetworkWrapper, max_depth: int = 3, depth: int = 0) -> Subdivision:
-    (split, velocity) = network.activate()
+def build_subdivisions(network: NetworkWrapper, max_depth: int = 3, step: float = 0.0, step_range: float = 16.0, depth: int = 0) -> Subdivision:
+    (split, velocity) = network.activate(step)
     if (depth == max_depth or split < 0.0):
         return [velocity] if velocity > 0.0 else [0.0]
 
     subdivision: Subdivision = []
-    splits: int = round(split * 10.0)
-    for _ in range(splits):
-        sub: Subdivision = build_subdivisions(network, max_depth, depth + 1)
+    splits: float = SPLITS[floor(split * len(SPLITS))]
+    range_per_split: float = step_range / splits
+
+    for i in range(splits):
+        sub: Subdivision = build_subdivisions(
+            network=network,
+            max_depth=max_depth,
+            step=step + (i * range_per_split),
+            step_range=range_per_split,
+            depth=depth + 1
+        )
         subdivision.append(sub)
+
     if len(subdivision) == 0:
         subdivision.append([0])
+
     return subdivision

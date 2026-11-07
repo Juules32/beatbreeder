@@ -10,7 +10,7 @@ class FeedForwardNetwork:
     def __init__(self, inputs, outputs, node_evals) -> None:
         ...
 
-    def activate(self, inputs: tuple[int, int]) -> list[float]:
+    def activate(self, inputs: tuple[float, float]) -> list[float]:
         ...
 
     @staticmethod
