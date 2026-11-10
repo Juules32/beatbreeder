@@ -12,5 +12,6 @@ type FlatGroove = list[list[float]]
 class Algorithm(StrEnum):
     RANDOM = "random"
     BASIC = "basic"
+    TREE = "tree"
     NEAT = "neat"
     NEATNESTED = "neat nested"
