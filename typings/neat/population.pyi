@@ -34,7 +34,7 @@ class Population:
     def remove_reporter(self, reporter) -> None:
         ...
 
-    def run(self, fitness_function, n=...) -> None:
+    def run(self, fitness_function, n: int=...) -> DefaultGenome:
         """
         Runs NEAT's genetic algorithm for at most n generations.  If n
         is None, run until solution is found or extinction occurs.

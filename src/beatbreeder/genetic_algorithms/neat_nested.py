@@ -12,7 +12,6 @@ INITIAL_RANGE: float = 16.0
 SPLITS: list[int] = [2, 3, 5, 7, 11]
 
 class NEATNested(NEAT):
-    @override
     def __init__(self, config_path: str = 'nested-cppn-config'):
         NEAT.__init__(self, config_path)
 
