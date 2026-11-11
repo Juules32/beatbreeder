@@ -12,4 +12,4 @@ class GenerateRequest(BaseModel):
 
 class GenerateResponse(BaseModel):
     gid: str
-    grooves: Annotated[list[tuple[int, Groove]], Field(max_length=POPULATION_SIZE)]
+    grooves: Annotated[list[tuple[int, Groove]], Field()]#, Field(max_length=POPULATION_SIZE)]

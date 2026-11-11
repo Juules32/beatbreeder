@@ -1,5 +1,6 @@
 from typing import override
 
+from beatbreeder.genetic_algorithms.neat_preevolve import evolve, simple_beat_fitness
 import neat
 from neat.config import Config
 from neat.population import Population
@@ -17,7 +18,9 @@ class NEAT(GA):
             neat.DefaultStagnation,
             config_path
         )
-        self.population: Population = neat.Population(self.config)
+        #self.population: Population = neat.Population(self.config)
+        self.population: Population = evolve(self.config, simple_beat_fitness, 5000)
+
 
     @override
     def evolve(self, parents: list[int]) -> None:
